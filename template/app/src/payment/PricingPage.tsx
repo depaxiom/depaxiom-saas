@@ -27,8 +27,8 @@ const bestDealPaymentPlanId: PaymentPlanId = PaymentPlanId.Pro;
 
 interface PaymentPlanCard {
   name: string;
-  price: string;
-  period?: string;
+  monthlyPrice: number;
+  annualPrice: number; // 2 months free
   description: string;
   features: string[];
   cta: string;
@@ -38,8 +38,9 @@ interface PaymentPlanCard {
 export const paymentPlanCards: Record<PaymentPlanId, PaymentPlanCard> = {
   [PaymentPlanId.Free]: {
     name: prettyPaymentPlanName(PaymentPlanId.Free),
-    price: "$0",
-    description: "Essential security scanning for individual developers",
+    monthlyPrice: 0,
+    annualPrice: 0,
+    description: "Essential security scanning for individual developers and open source projects",
     features: [
       "50 scans per day",
       "Basic dependency scanning",
@@ -51,8 +52,8 @@ export const paymentPlanCards: Record<PaymentPlanId, PaymentPlanCard> = {
   },
   [PaymentPlanId.Pro]: {
     name: prettyPaymentPlanName(PaymentPlanId.Pro),
-    price: "$29",
-    period: "/month",
+    monthlyPrice: 29,
+    annualPrice: 290, // 2 months free ($29 * 10)
     description: "Advanced detection for teams shipping secure code",
     features: [
       "500 scans per day",
@@ -67,8 +68,8 @@ export const paymentPlanCards: Record<PaymentPlanId, PaymentPlanCard> = {
   },
   [PaymentPlanId.Business]: {
     name: prettyPaymentPlanName(PaymentPlanId.Business),
-    price: "$199",
-    period: "/month",
+    monthlyPrice: 199,
+    annualPrice: 1990, // 2 months free ($199 * 10)
     description: "Full exploit intelligence for security teams",
     features: [
       "Unlimited scans",
@@ -87,6 +88,7 @@ export const paymentPlanCards: Record<PaymentPlanId, PaymentPlanCard> = {
 const PricingPage = () => {
   const [isPaymentLoading, setIsPaymentLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState<boolean>(false);
 
   const { data: user } = useAuth();
   const isUserSubscribed =
@@ -171,6 +173,36 @@ const PricingPage = () => {
         <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-center text-lg leading-8">
           From individual developers to enterprise security teams. Start free and scale as your security needs grow.
         </p>
+
+        {/* Billing toggle */}
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <span className={cn("text-sm font-medium", !isAnnual ? "text-foreground" : "text-muted-foreground")}>
+            Monthly
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsAnnual(!isAnnual)}
+            className={cn(
+              "relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+              isAnnual ? "bg-primary" : "bg-muted"
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out",
+                isAnnual ? "translate-x-5" : "translate-x-0"
+              )}
+            />
+          </button>
+          <span className={cn("text-sm font-medium", isAnnual ? "text-foreground" : "text-muted-foreground")}>
+            Annual
+          </span>
+          {isAnnual && (
+            <span className="bg-success/10 text-success rounded-full px-2.5 py-0.5 text-xs font-medium">
+              2 months free
+            </span>
+          )}
+        </div>
         {errorMessage && (
           <Alert variant="destructive" className="mt-8">
             <AlertDescription>{errorMessage}</AlertDescription>
@@ -224,11 +256,11 @@ const PricingPage = () => {
                 </p>
                 <p className="mt-6 flex items-baseline gap-x-1">
                   <span className="text-foreground text-4xl font-bold tracking-tight">
-                    {paymentPlanCards[planId].price}
+                    ${isAnnual ? paymentPlanCards[planId].annualPrice : paymentPlanCards[planId].monthlyPrice}
                   </span>
-                  {paymentPlanCards[planId].period && (
+                  {paymentPlanCards[planId].monthlyPrice > 0 && (
                     <span className="text-muted-foreground text-sm font-semibold leading-6">
-                      {paymentPlanCards[planId].period}
+                      /{isAnnual ? "year" : "month"}
                     </span>
                   )}
                 </p>
