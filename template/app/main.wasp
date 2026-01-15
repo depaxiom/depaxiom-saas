@@ -6,6 +6,8 @@ app Depaxiom {
   title: "Depaxiom - Compositional Vulnerability Detection",
 
   head: [
+    // Dark mode by default - runs before React to prevent flash
+    "<script>((d)=>{const t=localStorage.getItem('color-theme');if(!t||t==='\"dark\"')d.classList.add('dark')})(document.documentElement)</script>",
     "<link rel='icon' href='/favicon.ico' />",
     "<meta charset='utf-8' />",
     "<meta name='description' content='Find vulnerabilities that npm audit misses. Depaxiom detects exploitable chains across package boundaries.' />",

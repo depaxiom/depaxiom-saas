@@ -6,11 +6,11 @@ export default function useColorMode() {
 
   useEffect(() => {
     const className = "dark";
-    const bodyClass = window.document.body.classList;
+    const htmlClass = window.document.documentElement.classList;
 
     colorMode === "dark"
-      ? bodyClass.add(className)
-      : bodyClass.remove(className);
+      ? htmlClass.add(className)
+      : htmlClass.remove(className);
   }, [colorMode]);
 
   return [colorMode, setColorMode];
