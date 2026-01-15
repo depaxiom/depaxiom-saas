@@ -16,11 +16,12 @@ import { ensureArgsSchemaOrThrowHttpError } from "../server/validation";
 import { GeneratedSchedule, TaskPriority } from "./schedule";
 
 const openAi = setUpOpenAi();
-function setUpOpenAi(): OpenAI {
-  if (process.env.OPENAI_API_KEY) {
+function setUpOpenAi(): OpenAI | null {
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-placeholder-key') {
     return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   } else {
-    throw new Error("OpenAI API key is not set");
+    console.warn("OpenAI API key not set - AI features disabled");
+    return null;
   }
 }
 
@@ -251,6 +252,10 @@ async function generateScheduleWithGpt(
   tasks: Task[],
   hours: number,
 ): Promise<GeneratedSchedule | null> {
+  if (!openAi) {
+    console.error("OpenAI is not configured - AI features disabled");
+    return null;
+  }
   const parsedTasks = tasks.map(({ description, time }) => ({
     description,
     time,
