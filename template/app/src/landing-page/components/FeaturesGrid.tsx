@@ -31,7 +31,7 @@ const FeaturesGrid = ({ features, className = "" }: FeaturesGridProps) => {
     >
       <SectionTitle
         title="Features"
-        description="These are some of the features of the product."
+        description="Everything you need to secure your supply chain."
       />
       <div
         className={cn(

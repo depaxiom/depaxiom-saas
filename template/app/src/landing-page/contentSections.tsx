@@ -2,6 +2,7 @@ import { DocsUrl } from "../shared/common";
 import type { GridFeature } from "./components/FeaturesGrid";
 
 export const features: GridFeature[] = [
+  // Lead with user benefits
   {
     name: "Compositional Detection",
     description: "Analyzes package combinations, not just individual packages. Finds vulnerabilities atomic scanners miss.",
@@ -10,39 +11,18 @@ export const features: GridFeature[] = [
     size: "large",
   },
   {
-    name: "Semantic Fidelity",
-    description: "Instrumented V8 execution, not static analysis. If we report it, it actually executes.",
-    emoji: "🎯",
-    href: DocsUrl,
-    size: "medium",
-  },
-  {
-    name: "Universal Skeleton Keys",
-    description: "20+ universal gadgets (env, shell, code, helpers). Any pollution source + vulnerable sink = exploit.",
-    emoji: "🔑",
-    href: DocsUrl,
-    size: "medium",
-  },
-  {
-    name: "Typed Primitive DAG",
-    description: "Searchable graph of sources, sinks, and chains. Automatic chain discovery as primitives are added.",
-    emoji: "📊",
-    href: DocsUrl,
-    size: "small",
-  },
-  {
     name: "Reachability Analysis",
     description: "Determines exploitability in your context. Transforms alert fatigue into prioritized findings.",
     emoji: "🎯",
     href: DocsUrl,
-    size: "small",
+    size: "medium",
   },
   {
     name: "GitHub Action",
     description: "Drop into any CI/CD pipeline. Get findings as PR comments with zero configuration.",
     emoji: "⚡",
     href: DocsUrl,
-    size: "small",
+    size: "medium",
   },
   {
     name: "Zombie Package Detection",
@@ -56,12 +36,35 @@ export const features: GridFeature[] = [
     description: "Crowdsourced package integrity. Detect tampered packages before they compromise your build.",
     emoji: "🔐",
     href: DocsUrl,
-    size: "medium",
+    size: "small",
   },
+  // Technical credibility
+  {
+    name: "Universal Skeleton Keys",
+    description: "20+ universal gadgets (env, shell, code, helpers). Any pollution source + vulnerable sink = exploit.",
+    emoji: "🔑",
+    href: DocsUrl,
+    size: "small",
+  },
+  {
+    name: "Semantic Fidelity",
+    description: "Instrumented V8 execution, not static analysis. If we report it, it actually executes.",
+    emoji: "✓",
+    href: DocsUrl,
+    size: "small",
+  },
+  // Business tier upsell
   {
     name: "Virtual Patching",
     description: "Business tier includes WAF rules and patching artifacts. Mitigate before upstream fixes.",
     emoji: "🛡️",
+    href: DocsUrl,
+    size: "medium",
+  },
+  {
+    name: "Chain Discovery Engine",
+    description: "Automatically discovers new attack paths as our research expands. Your coverage grows with our catalog.",
+    emoji: "📊",
     href: DocsUrl,
     size: "medium",
   },
