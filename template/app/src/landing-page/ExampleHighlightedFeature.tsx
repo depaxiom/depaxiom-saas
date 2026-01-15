@@ -1,3 +1,5 @@
+import { Link as WaspRouterLink, routes } from "wasp/client/router";
+import { Button } from "../client/components/ui/button";
 import HighlightedFeature from "./components/HighlightedFeature";
 
 export default function KillerDemo() {
@@ -29,14 +31,23 @@ const DemoExample = () => {
           <div>Sink: execa (child_process.spawn)</div>
           <div>Vector: __proto__.env.NODE_OPTIONS</div>
         </div>
-        <div className="text-primary mt-3 text-xs">
+        <WaspRouterLink to={routes.PricingPageRoute.to} className="text-primary mt-3 block text-xs hover:underline">
           → Full POC available (Business tier)
-        </div>
+        </WaspRouterLink>
       </div>
 
       {/* Explanation */}
       <div className="text-muted-foreground text-center text-xs">
         Same dependencies. Different conclusions.
+      </div>
+
+      {/* CTA */}
+      <div className="pt-2 text-center">
+        <Button size="lg" variant="default" asChild>
+          <WaspRouterLink to={routes.SignupRoute.to}>
+            Start Scanning Free <span aria-hidden="true">→</span>
+          </WaspRouterLink>
+        </Button>
       </div>
     </div>
   );
