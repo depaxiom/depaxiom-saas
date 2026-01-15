@@ -1,7 +1,5 @@
 import { Link as WaspRouterLink, routes } from "wasp/client/router";
 import { Button } from "../../client/components/ui/button";
-import openSaasBannerDark from "../../client/static/open-saas-banner-dark.svg";
-import openSaasBannerLight from "../../client/static/open-saas-banner-light.svg";
 
 export default function Hero() {
   return (
@@ -12,47 +10,61 @@ export default function Hero() {
         <div className="max-w-8xl mx-auto px-6 lg:px-8">
           <div className="lg:mb-18 mx-auto max-w-3xl text-center">
             <h1 className="text-foreground text-5xl font-bold sm:text-6xl">
-              Some <span className="italic">cool</span> words about{" "}
-              <span className="text-gradient-primary">your product</span>
+              Find vulnerabilities that{" "}
+              <span className="text-gradient-primary">npm audit misses</span>
             </h1>
             <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-lg leading-8">
-              With some more exciting words about your product!
+              Depaxiom detects exploitable chains across package boundaries.
+              When individually safe packages combine to create RCE, SSRF, or path traversal—we find it.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button size="lg" variant="outline" asChild>
                 <WaspRouterLink to={routes.PricingPageRoute.to}>
-                  Learn More
+                  View Pricing
                 </WaspRouterLink>
               </Button>
               <Button size="lg" variant="default" asChild>
                 <WaspRouterLink to={routes.SignupRoute.to}>
-                  Get Started <span aria-hidden="true">→</span>
+                  Start Scanning <span aria-hidden="true">→</span>
                 </WaspRouterLink>
               </Button>
             </div>
           </div>
+
+          {/* Stats/Social Proof */}
+          <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4">
+            <StatCard number="100+" label="Vulnerabilities Found" />
+            <StatCard number="20+" label="CVE Bypasses" />
+            <StatCard number="<5%" label="False Positive Rate" />
+            <StatCard number="20+" label="Universal Exploit Chains" />
+          </div>
+
+          {/* Code Example */}
           <div className="mt-14 flow-root sm:mt-14">
-            <div className="m-2 hidden justify-center rounded-xl md:flex lg:-m-4 lg:rounded-2xl lg:p-4">
-              <img
-                src={openSaasBannerLight}
-                alt="App screenshot"
-                width={1000}
-                height={530}
-                loading="lazy"
-                className="rounded-md shadow-2xl ring-1 ring-gray-900/10 dark:hidden"
-              />
-              <img
-                src={openSaasBannerDark}
-                alt="App screenshot"
-                width={1000}
-                height={530}
-                loading="lazy"
-                className="hidden rounded-md shadow-2xl ring-1 ring-gray-900/10 dark:block"
-              />
+            <div className="bg-muted/50 mx-auto max-w-3xl rounded-xl border p-6 font-mono text-sm">
+              <div className="text-muted-foreground mb-2"># Add to your GitHub workflow</div>
+              <div className="text-foreground">
+                <span className="text-primary">-</span> uses: depaxiom/scan-action@v1
+              </div>
+              <div className="text-foreground pl-4">
+                with:
+              </div>
+              <div className="text-foreground pl-6">
+                api-key: <span className="text-muted-foreground">$&#123;&#123; secrets.DEPAXIOM_API_KEY &#125;&#125;</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatCard({ number, label }: { number: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-primary text-3xl font-bold">{number}</div>
+      <div className="text-muted-foreground text-sm">{label}</div>
     </div>
   );
 }

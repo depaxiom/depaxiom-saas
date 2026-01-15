@@ -8,16 +8,16 @@ export enum SubscriptionStatus {
 }
 
 export enum PaymentPlanId {
-  Hobby = "hobby",
+  Free = "free",
   Pro = "pro",
-  Credits10 = "credits10",
+  Business = "business",
 }
 
 export interface PaymentPlan {
   /**
    * Returns the id under which this payment plan is identified on your payment processor.
    *
-   * E.g. price id on Stripe, or variant id on LemonSqueezy.
+   * E.g. price id on Stripe.
    */
   getPaymentProcessorPlanId: () => string;
   effect: PaymentPlanEffect;
@@ -25,31 +25,30 @@ export interface PaymentPlan {
 
 export type PaymentPlanEffect =
   | { kind: "subscription" }
-  | { kind: "credits"; amount: number };
+  | { kind: "free" };
 
 export const paymentPlans = {
-  [PaymentPlanId.Hobby]: {
-    getPaymentProcessorPlanId: () =>
-      requireNodeEnvVar("PAYMENTS_HOBBY_SUBSCRIPTION_PLAN_ID"),
-    effect: { kind: "subscription" },
+  [PaymentPlanId.Free]: {
+    getPaymentProcessorPlanId: () => "free", // Free tier doesn't need Stripe
+    effect: { kind: "free" },
   },
   [PaymentPlanId.Pro]: {
     getPaymentProcessorPlanId: () =>
       requireNodeEnvVar("PAYMENTS_PRO_SUBSCRIPTION_PLAN_ID"),
     effect: { kind: "subscription" },
   },
-  [PaymentPlanId.Credits10]: {
+  [PaymentPlanId.Business]: {
     getPaymentProcessorPlanId: () =>
-      requireNodeEnvVar("PAYMENTS_CREDITS_10_PLAN_ID"),
-    effect: { kind: "credits", amount: 10 },
+      requireNodeEnvVar("PAYMENTS_BUSINESS_SUBSCRIPTION_PLAN_ID"),
+    effect: { kind: "subscription" },
   },
 } as const satisfies Record<PaymentPlanId, PaymentPlan>;
 
 export function prettyPaymentPlanName(planId: PaymentPlanId): string {
   const planToName: Record<PaymentPlanId, string> = {
-    [PaymentPlanId.Hobby]: "Hobby",
+    [PaymentPlanId.Free]: "Free",
     [PaymentPlanId.Pro]: "Pro",
-    [PaymentPlanId.Credits10]: "10 Credits",
+    [PaymentPlanId.Business]: "Business",
   };
   return planToName[planId];
 }
@@ -69,10 +68,7 @@ export function getSubscriptionPaymentPlanIds(): PaymentPlanId[] {
 }
 
 /**
- * Returns Open SaaS `PaymentPlanId` for some payment provider's plan ID.
- * 
- * Different payment providers track plan ID in different ways.
- * e.g. Stripe price ID, Polar product ID...
+ * Returns depaxiom `PaymentPlanId` for some payment provider's plan ID.
  */
 export function getPaymentPlanIdByPaymentProcessorPlanId(
   paymentProcessorPlanId: string,

@@ -13,7 +13,7 @@ import {
   paymentPlans,
   SubscriptionStatus,
 } from "../plans";
-import { updateUserCredits, updateUserSubscription } from "../user";
+import { updateUserSubscription } from "../user";
 import { stripeClient } from "./stripeClient";
 
 /**
@@ -108,18 +108,11 @@ async function handleInvoicePaid(
   );
 
   switch (paymentPlanId) {
-    case PaymentPlanId.Credits10:
-      await updateUserCredits(
-        {
-          paymentProcessorUserId: customerId,
-          datePaid: invoicePaidAtDate,
-          numOfCreditsPurchased: paymentPlans[paymentPlanId].effect.amount,
-        },
-        prismaUserDelegate,
-      );
-      break;
+    case PaymentPlanId.Free:
+      // Free tier should not receive Stripe invoices
+      throw new Error("Free tier should not have Stripe invoices");
     case PaymentPlanId.Pro:
-    case PaymentPlanId.Hobby:
+    case PaymentPlanId.Business:
       await updateUserSubscription(
         {
           paymentProcessorUserId: customerId,

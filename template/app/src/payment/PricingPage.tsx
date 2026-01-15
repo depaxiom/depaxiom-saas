@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Lock } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "wasp/client/auth";
@@ -28,28 +28,59 @@ const bestDealPaymentPlanId: PaymentPlanId = PaymentPlanId.Pro;
 interface PaymentPlanCard {
   name: string;
   price: string;
+  period?: string;
   description: string;
   features: string[];
+  cta: string;
+  badge?: string;
 }
 
 export const paymentPlanCards: Record<PaymentPlanId, PaymentPlanCard> = {
-  [PaymentPlanId.Hobby]: {
-    name: prettyPaymentPlanName(PaymentPlanId.Hobby),
-    price: "$9.99",
-    description: "All you need to get started",
-    features: ["Limited monthly usage", "Basic support"],
+  [PaymentPlanId.Free]: {
+    name: prettyPaymentPlanName(PaymentPlanId.Free),
+    price: "$0",
+    description: "Essential security scanning for individual developers",
+    features: [
+      "50 scans per day",
+      "Basic dependency scanning",
+      "Compositional risk alerts",
+      "Community hash verification",
+      "GitHub Action integration",
+    ],
+    cta: "Get Started Free",
   },
   [PaymentPlanId.Pro]: {
     name: prettyPaymentPlanName(PaymentPlanId.Pro),
-    price: "$19.99",
-    description: "Our most popular plan",
-    features: ["Unlimited monthly usage", "Priority customer support"],
+    price: "$29",
+    period: "/month",
+    description: "Advanced detection for teams shipping secure code",
+    features: [
+      "500 scans per day",
+      "Vulnerability class disclosure (RCE, SSRF, etc.)",
+      "Sanitized POC snippets",
+      "Private package scanning",
+      "Zombie package warnings",
+      "Priority support",
+    ],
+    cta: "Start Pro Trial",
+    badge: "Most Popular",
   },
-  [PaymentPlanId.Credits10]: {
-    name: prettyPaymentPlanName(PaymentPlanId.Credits10),
-    price: "$9.99",
-    description: "One-time purchase of 10 credits for your account",
-    features: ["Use credits for e.g. OpenAI API calls", "No expiration date"],
+  [PaymentPlanId.Business]: {
+    name: prettyPaymentPlanName(PaymentPlanId.Business),
+    price: "$199",
+    period: "/month",
+    description: "Full exploit intelligence for security teams",
+    features: [
+      "Unlimited scans",
+      "Full working POC exploits",
+      "Virtual patching artifacts",
+      "Generated WAF rules",
+      "SBOM/SARIF/VEX export",
+      "Dedicated support",
+      "NDA required",
+    ],
+    cta: "Contact Sales",
+    badge: "Enterprise",
   },
 };
 
@@ -76,6 +107,19 @@ const PricingPage = () => {
       navigate("/login");
       return;
     }
+
+    // Free tier - just redirect to dashboard
+    if (paymentPlanId === PaymentPlanId.Free) {
+      navigate("/demo-app");
+      return;
+    }
+
+    // Business tier - contact sales
+    if (paymentPlanId === PaymentPlanId.Business) {
+      window.open("mailto:sales@depaxiom.com?subject=Business%20Tier%20Inquiry", "_blank");
+      return;
+    }
+
     try {
       setIsPaymentLoading(true);
 
@@ -93,7 +137,7 @@ const PricingPage = () => {
       } else {
         setErrorMessage("Error processing payment. Please try again later.");
       }
-      setIsPaymentLoading(false); // We only set this to false here and not in the try block because we redirect to the checkout url within the same window
+      setIsPaymentLoading(false);
     }
   }
 
@@ -121,15 +165,11 @@ const PricingPage = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div id="pricing" className="mx-auto max-w-4xl text-center">
           <h2 className="text-foreground mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
-            Pick your <span className="text-primary">pricing</span>
+            Security intelligence at <span className="text-primary">every scale</span>
           </h2>
         </div>
         <p className="text-muted-foreground mx-auto mt-6 max-w-2xl text-center text-lg leading-8">
-          Payments powered by Stripe. Try it out below with test credit card
-          number <br />
-          <span className="bg-muted text-muted-foreground rounded-md px-2 py-1 font-mono text-sm">
-            4242 4242 4242 4242 4242
-          </span>
+          From individual developers to enterprise security teams. Start free and scale as your security needs grow.
         </p>
         {errorMessage && (
           <Alert variant="destructive" className="mt-8">
@@ -163,6 +203,13 @@ const PricingPage = () => {
                   />
                 </div>
               )}
+              {paymentPlanCards[planId].badge && (
+                <div className="absolute right-4 top-4">
+                  <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold">
+                    {paymentPlanCards[planId].badge}
+                  </span>
+                </div>
+              )}
               <CardContent className="h-full justify-between p-8 xl:p-10">
                 <div className="flex items-center justify-between gap-x-4">
                   <CardTitle
@@ -179,10 +226,11 @@ const PricingPage = () => {
                   <span className="text-foreground text-4xl font-bold tracking-tight">
                     {paymentPlanCards[planId].price}
                   </span>
-                  <span className="text-muted-foreground text-sm font-semibold leading-6">
-                    {paymentPlans[planId].effect.kind === "subscription" &&
-                      "/month"}
-                  </span>
+                  {paymentPlanCards[planId].period && (
+                    <span className="text-muted-foreground text-sm font-semibold leading-6">
+                      {paymentPlanCards[planId].period}
+                    </span>
+                  )}
                 </p>
                 <ul
                   role="list"
@@ -190,10 +238,17 @@ const PricingPage = () => {
                 >
                   {paymentPlanCards[planId].features.map((feature) => (
                     <li key={feature} className="flex gap-x-3">
-                      <CheckCircle
-                        className="text-primary h-5 w-5 flex-none"
-                        aria-hidden="true"
-                      />
+                      {feature.includes("NDA") ? (
+                        <Lock
+                          className="text-primary h-5 w-5 flex-none"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <CheckCircle
+                          className="text-primary h-5 w-5 flex-none"
+                          aria-hidden="true"
+                        />
+                      )}
                       {feature}
                     </li>
                   ))}
@@ -222,12 +277,21 @@ const PricingPage = () => {
                     className="w-full"
                     disabled={isPaymentLoading}
                   >
-                    {!!user ? "Buy plan" : "Log in to buy plan"}
+                    {!!user ? paymentPlanCards[planId].cta : "Log in to get started"}
                   </Button>
                 )}
               </CardFooter>
             </Card>
           ))}
+        </div>
+
+        {/* Comparison note */}
+        <div className="mt-16 text-center">
+          <p className="text-muted-foreground text-sm">
+            All plans include GitHub Action integration, API access, and basic support.
+            <br />
+            Business tier requires signing an NDA for access to full exploit details.
+          </p>
         </div>
       </div>
     </div>

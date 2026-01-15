@@ -83,8 +83,9 @@ function paymentPlanEffectToStripeCheckoutSessionMode({
   switch (kind) {
     case "subscription":
       return "subscription";
-    case "credits":
-      return "payment";
+    case "free":
+      // Free tier should not go through Stripe checkout
+      throw new Error("Free tier does not require payment checkout");
     default:
       assertUnreachable(kind);
   }
