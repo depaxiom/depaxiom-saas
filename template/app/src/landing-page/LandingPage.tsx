@@ -2,12 +2,11 @@ import FAQ from "./components/FAQ";
 import FeaturesGrid from "./components/FeaturesGrid";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
-import Testimonials from "./components/Testimonials";
+import ResearchProof from "./components/ResearchProof";
 import {
   faqs,
   features,
   footerNavigation,
-  testimonials,
 } from "./contentSections";
 import KillerDemo from "./ExampleHighlightedFeature";
 
@@ -18,7 +17,7 @@ export default function LandingPage() {
         <Hero />
         <KillerDemo />
         <FeaturesGrid features={features} />
-        <Testimonials testimonials={testimonials} />
+        <ResearchProof />
         <FAQ faqs={faqs} />
       </main>
       <Footer footerNavigation={footerNavigation} />

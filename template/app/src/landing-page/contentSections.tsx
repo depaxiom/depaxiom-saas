@@ -70,29 +70,7 @@ export const features: GridFeature[] = [
   },
 ];
 
-export const testimonials = [
-  {
-    name: "Security Engineer",
-    role: "Fortune 500 Company",
-    avatarSrc: "",
-    socialUrl: "",
-    quote: "Found 3 exploitable chains in our dependency tree that Snyk and npm audit both missed. One was a direct path to RCE.",
-  },
-  {
-    name: "Lead Developer",
-    role: "Fintech Startup",
-    avatarSrc: "",
-    socialUrl: "",
-    quote: "The compositional analysis is game-changing. We had no idea that two 'safe' packages could combine into a vulnerability.",
-  },
-  {
-    name: "DevSecOps Lead",
-    role: "SaaS Platform",
-    avatarSrc: "",
-    socialUrl: "",
-    quote: "Integrated into our CI in 5 minutes. The false positive rate is incredibly low compared to other tools we've tried.",
-  },
-];
+// Testimonials removed - using ResearchProof component with verifiable claims instead
 
 export const faqs = [
   {
