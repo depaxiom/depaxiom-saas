@@ -36,7 +36,7 @@ export default function Hero() {
             <StatCard number="100+" label="Vulnerabilities Found" />
             <StatCard number="20+" label="CVE Bypasses" />
             <StatCard number="<5%" label="False Positive Rate" />
-            <StatCard number="20+" label="Universal Exploit Chains" />
+            <StatCard number="20+" label="Skeleton Key Exploits" />
           </div>
 
           {/* Code Example */}
@@ -52,6 +52,7 @@ export default function Hero() {
               <div className="text-foreground pl-6">
                 api-key: <span className="text-muted-foreground">$&#123;&#123; secrets.DEPAXIOM_API_KEY &#125;&#125;</span>
               </div>
+              <div className="text-muted-foreground mt-2"># Fails PR if critical vulnerabilities found</div>
             </div>
           </div>
         </div>
