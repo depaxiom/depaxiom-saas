@@ -7,12 +7,12 @@
     ".wasp/build/*"
   ],
   "dependencies": {
-    "wasp": "file:.wasp/out/sdk/wasp",
     "@aws-sdk/client-s3": "^3.523.0",
     "@aws-sdk/s3-presigned-post": "^3.750.0",
     "@aws-sdk/s3-request-presigner": "^3.523.0",
     "@google-analytics/data": "4.1.0",
     "@hookform/resolvers": "^5.1.1",
+    "@infisical/sdk": "^4.0.6",
     "@lemonsqueezy/lemonsqueezy.js": "^3.2.0",
     "@polar-sh/sdk": "^0.34.3",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -31,6 +31,9 @@
     "@tailwindcss/typography": "^0.5.19",
     "apexcharts": "3.41.0",
     "class-variance-authority": "^0.7.1",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "rate-limit-redis": "^4.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
     "openai": "^4.55.3",
@@ -46,6 +49,7 @@
     "tailwindcss": "^4.1.18",
     "tailwindcss-animate": "^1.0.7",
     "vanilla-cookieconsent": "^3.0.1",
+    "wasp": "file:.wasp/out/sdk/wasp",
     "zod": "^3.25.76"
   },
   "devDependencies": {

@@ -1,2 +1,11 @@
 node_modules/
 .wasp/
+
+# Environment files with secrets - NEVER commit these
+.env.server
+.env.client
+.env.local
+.env.*.local
+
+# Infisical temporary files
+/tmp/secrets.sh

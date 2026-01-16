@@ -90,6 +90,11 @@ app Depaxiom {
       email: "noreply@depaxiom.com"
     },
   },
+
+  // Server setup for security middleware (rate limiting, security headers)
+  server: {
+    setupFn: import { serverSetup } from "@src/server/serverSetup",
+  },
 }
 
 route LandingPageRoute { path: "/", to: LandingPage }
