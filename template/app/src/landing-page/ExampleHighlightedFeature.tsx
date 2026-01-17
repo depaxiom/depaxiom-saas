@@ -27,8 +27,8 @@ const DemoExample = () => {
         <div className="text-muted-foreground mb-2">$ depaxiom scan</div>
         <div className="text-red-500 font-semibold">CRITICAL: RCE Chain Detected</div>
         <div className="text-muted-foreground mt-2 text-xs">
-          <div>Source: lodash.merge (prototype pollution)</div>
-          <div>Sink: execa (child_process.spawn)</div>
+          <div>Source: deep-merge utility (prototype pollution)</div>
+          <div>Sink: process spawner (child_process.spawn)</div>
           <div>Vector: __proto__.env.NODE_OPTIONS</div>
         </div>
         <WaspRouterLink to={routes.PricingPageRoute.to} className="text-primary mt-3 block text-xs hover:underline">

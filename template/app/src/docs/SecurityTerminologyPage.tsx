@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -111,10 +111,10 @@ The danger depends on where the property is read:
     ],
     examples: [
       {
-        title: "Source Primitive (lodash)",
+        title: "Source Primitive (merge-utils)",
         description:
-          "lodash.merge() can be a pollution source with __proto__ input",
-        code: `const _ = require('lodash');
+          "merge-utils.merge() can be a pollution source with __proto__ input",
+        code: `const _ = require('merge-utils');
 
 // This is a SOURCE primitive - untrusted data enters here
 function mergeConfig(defaultConfig, userConfig) {
@@ -128,7 +128,7 @@ const maliciousConfig = {
   }
 };
 
-// lodash.merge processes it and pollutes Object.prototype
+// merge-utils.merge processes it and pollutes Object.prototype
 const config = mergeConfig({}, maliciousConfig);
 // Now every object has shell property from prototype`,
       },
@@ -150,7 +150,7 @@ function executeCommand(cmd, callback) {
 // This allows RCE by controlling which shell interpreter is used
 
 // Attacker chain:
-// 1. Send { "__proto__": { "shell": "/bin/sh" } } to lodash.merge (source)
+// 1. Send { "__proto__": { "shell": "/bin/sh" } } to merge-utils.merge (source)
 // 2. Call executeCommand (sink) - child_process now runs with polluted shell
 // 3. Arbitrary code execution`,
       },
@@ -183,8 +183,8 @@ For example:
     examples: [
       {
         title: "Gadget: Unsafe Merge",
-        description: "A gadget in lodash that can pollute prototypes",
-        code: `// Inside lodash package (simplified)
+        description: "A gadget in merge-utils that can pollute prototypes",
+        code: `// Inside merge-utils package (simplified)
 // This gadget is a code pattern vulnerable to PP
 function assignValue(object, path, value) {
   if (path === '__proto__' || path === 'constructor') {
@@ -203,8 +203,8 @@ function assignValue(object, path, value) {
         title: "Gadget Chain: Pollution → RCE",
         description:
           "How two gadgets in different packages create an exploit chain",
-        code: `// STEP 1: Use gadget in Package A (lodash - pollution source)
-const _ = require('lodash');
+        code: `// STEP 1: Use gadget in Package A (merge-utils - pollution source)
+const _ = require('merge-utils');
 const userInput = JSON.parse(req.body);
 
 // Gadget 1: unsafe merge
@@ -220,7 +220,7 @@ spawn('ls', [], {
 });
 
 // Complete chain:
-// Attacker input (lodash source) → Pollution → (child_process sink) → RCE
+// Attacker input (merge-utils source) → Pollution → (child_process sink) → RCE
 // This is a gadget CHAIN - two packages, two gadgets, one exploit`,
       },
     ],
@@ -234,15 +234,15 @@ spawn('ls', [], {
 2. **Sink Package**: Contains code that uses polluted properties dangerously
 
 The most dangerous chains are those where:
-- The source is commonly used (e.g., lodash, underscore)
+- The source is commonly used (e.g., merge-utils, object-utils)
 - The source reaches the sink through normal application flow
 - The sink connects to system resources (shell execution, file access)
 - The exploit path is hard for developers to notice
 
 For example, a typical chain looks like:
-- lodash (parsing user input) → handlebars (template rendering)
+- merge-utils (parsing user input) → tpl-engine (template rendering)
 - yaml (config parsing) → child_process (spawning commands)
-- express-json-parser (body parsing) → ejs (template compilation)
+- body-parser (body parsing) → view-engine (template compilation)
 
 When both packages exist in the same project's dependency tree, the chain is exploitable. Depaxiom finds these before they become CVEs.`,
     keyPoints: [
@@ -254,25 +254,24 @@ When both packages exist in the same project's dependency tree, the chain is exp
     ],
     examples: [
       {
-        title: "Real Chain Example: lodash → handlebars",
+        title: "Real Chain Example: merge-utils → tpl-engine",
         description:
-          "lodash merges config, handlebars uses polluted properties",
+          "merge-utils merges config, tpl-engine uses polluted properties",
         code: `// User sends config via REST API
-const express = require('express');
-const _ = require('lodash');
-const handlebars = require('handlebars');
+const mergeUtils = require('merge-utils');
+const tplEngine = require('tpl-engine');
 
 app.post('/config', (req, res) => {
-  // CHAIN SOURCE: lodash merges untrusted input
-  const config = _.merge(defaultConfig, req.body);
+  // CHAIN SOURCE: merge-utils merges untrusted input
+  const config = mergeUtils.merge(defaultConfig, req.body);
 
   // Attacker can pollute here with:
   // { "__proto__": { "allowProtoProperties": true } }
 
-  // Later: CHAIN SINK: handlebars uses prototype properties
-  const template = handlebars.compile(config.template);
+  // Later: CHAIN SINK: tpl-engine uses prototype properties
+  const template = tplEngine.compile(config.template);
 
-  // If handlebars checks for properties on prototype
+  // If tpl-engine checks for properties on prototype
   // it might allow execution of polluted values
   const output = template(config);
   res.send(output);
@@ -280,14 +279,14 @@ app.post('/config', (req, res) => {
 
 // Exploiting this chain:
 // 1. Send { "__proto__": { "breakout": "malicious-template-code" } }
-// 2. lodash pollutes prototype
-// 3. handlebars reads breakout property
+// 2. merge-utils pollutes prototype
+// 3. tpl-engine reads breakout property
 // 4. Attacker's code executes in template engine`,
       },
       {
         title: "Another Chain: yaml → child_process",
         description: "YAML parsing pollution leading to process spawning",
-        code: `const yaml = require('js-yaml');
+        code: `const yaml = require('config-parser');
 const spawn = require('child_process').spawn;
 
 function loadConfig(yamlString) {
@@ -355,13 +354,13 @@ Object.defineProperty(Object.prototype, 'env', {
 const spawn = require('child_process').spawn;
 spawn('ls', []); // Sees polluted env!
 
-// Package 2: execa
-const execa = require('execa');
-execa('ls'); // Sees polluted env!
+// Package 2: spawn-lib
+const spawnLib = require('spawn-lib');
+spawnLib('ls'); // Sees polluted env!
 
-// Package 3: cross-spawn
-const crossSpawn = require('cross-spawn');
-crossSpawn('ls'); // Sees polluted env!
+// Package 3: exec-lib
+const execLib = require('exec-lib');
+execLib('ls'); // Sees polluted env!
 
 // All these packages use the env skeleton key
 // Single pollution affects all process spawning
@@ -423,11 +422,26 @@ console.log(canAccessAdmin(attacker)); // true! Bypassed!
 };
 
 export default function SecurityTerminologyPage() {
-  const [expandedSection, setExpandedSection] = useState<string | null>(
-    "prototypePollution"
-  );
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const sectionKeys = Object.keys(sections);
+
+  // Read hash on initial load
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash && sectionKeys.includes(hash)) {
+      setExpandedSection(hash);
+    }
+  }, []);
+
+  // Update hash when section changes
+  useEffect(() => {
+    if (expandedSection) {
+      window.history.replaceState(null, '', `#${expandedSection}`);
+    } else {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, [expandedSection]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">

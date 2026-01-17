@@ -286,7 +286,7 @@ const PricingPage = () => {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex-col">
                 {isUserSubscribed ? (
                   <Button
                     onClick={handleCustomerPortalClick}
@@ -300,17 +300,24 @@ const PricingPage = () => {
                     Manage Subscription
                   </Button>
                 ) : (
-                  <Button
-                    onClick={() => handleBuyNowClick(planId)}
-                    aria-describedby={planId}
-                    variant={
-                      planId === bestDealPaymentPlanId ? "default" : "outline"
-                    }
-                    className="w-full"
-                    disabled={isPaymentLoading}
-                  >
-                    {!!user ? paymentPlanCards[planId].cta : "Log in to get started"}
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => handleBuyNowClick(planId)}
+                      aria-describedby={planId}
+                      variant={
+                        planId === bestDealPaymentPlanId ? "default" : "outline"
+                      }
+                      className="w-full"
+                      disabled={isPaymentLoading}
+                    >
+                      {!!user ? paymentPlanCards[planId].cta : "Log in to get started"}
+                    </Button>
+                    {planId === PaymentPlanId.Pro && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        14-day free trial. No credit card required.
+                      </p>
+                    )}
+                  </>
                 )}
               </CardFooter>
             </Card>

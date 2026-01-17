@@ -1,3 +1,4 @@
+import { Info, KeyRound } from "lucide-react";
 import { useState } from "react";
 import {
   createApiKey,
@@ -8,6 +9,16 @@ import {
 } from "wasp/client/operations";
 import { Link as WaspRouterLink, routes } from "wasp/client/router";
 import type { User } from "wasp/entities";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../client/components/ui/alert-dialog";
 import { Button } from "../client/components/ui/button";
 import {
   Card,
@@ -18,6 +29,7 @@ import {
 } from "../client/components/ui/card";
 import { Input } from "../client/components/ui/input";
 import { Separator } from "../client/components/ui/separator";
+import { Skeleton } from "../client/components/ui/skeleton";
 import {
   PaymentPlanId,
   SubscriptionStatus,
@@ -79,8 +91,11 @@ export default function AccountPage({ user }: { user: User }) {
             <Separator />
             <div className="px-6 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
-                <div className="text-muted-foreground text-sm font-medium">
+                <div className="text-muted-foreground text-sm font-medium flex items-center gap-1.5">
                   Credits
+                  <span title="Credits are used for each security scan. Free users get 50 credits daily. Pro users get 500 credits daily. Credits reset at midnight UTC.">
+                    <Info className="h-3.5 w-3.5 cursor-help" />
+                  </span>
                 </div>
                 <div className="text-foreground mt-1 text-sm sm:col-span-1 sm:mt-0">
                   {user.credits} credits
@@ -106,10 +121,24 @@ function ApiKeysSection() {
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [keyToRevoke, setKeyToRevoke] = useState<{ id: string; name: string } | null>(null);
+  const [isRevoking, setIsRevoking] = useState(false);
 
   const handleCreateKey = async () => {
-    if (!newKeyName.trim()) {
+    const trimmedName = newKeyName.trim();
+
+    if (!trimmedName) {
       setError("Please enter a name for the API key");
+      return;
+    }
+
+    if (trimmedName.length > 50) {
+      setError("API key name must be 50 characters or less");
+      return;
+    }
+
+    if (!/^[\w\s-]+$/.test(trimmedName)) {
+      setError("API key name can only contain letters, numbers, spaces, hyphens, and underscores");
       return;
     }
 
@@ -128,16 +157,18 @@ function ApiKeysSection() {
     }
   };
 
-  const handleRevokeKey = async (id: string) => {
-    if (!confirm("Are you sure you want to revoke this API key? This action cannot be undone.")) {
-      return;
-    }
+  const handleRevokeKey = async () => {
+    if (!keyToRevoke) return;
 
+    setIsRevoking(true);
     try {
-      await revokeApiKey({ id });
+      await revokeApiKey({ id: keyToRevoke.id });
       refetch();
+      setKeyToRevoke(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to revoke API key");
+    } finally {
+      setIsRevoking(false);
     }
   };
 
@@ -162,6 +193,10 @@ function ApiKeysSection() {
         </CardTitle>
         <CardDescription>
           Create and manage API keys to access the Depaxiom API programmatically.
+          Use keys in GitHub Actions, CI/CD pipelines, or direct API calls.{" "}
+          <a href="/docs/api" className="text-primary hover:underline">
+            View API Documentation →
+          </a>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -176,6 +211,7 @@ function ApiKeysSection() {
               onKeyDown={(e) => e.key === "Enter" && handleCreateKey()}
               className="flex-1"
               disabled={isCreating}
+              maxLength={50}
             />
             <Button onClick={handleCreateKey} disabled={isCreating}>
               {isCreating ? "Creating..." : "Create Key"}
@@ -188,7 +224,11 @@ function ApiKeysSection() {
 
         {/* Newly created key display */}
         {newlyCreatedKey && (
-          <div className="mb-6 rounded-lg border border-yellow-500 bg-yellow-500/10 p-4">
+          <div
+            role="alert"
+            aria-live="polite"
+            className="mb-6 rounded-lg border border-yellow-500 bg-yellow-500/10 p-4"
+          >
             <p className="mb-2 text-sm font-medium text-yellow-600 dark:text-yellow-400">
               Save this API key now. You won't be able to see it again!
             </p>
@@ -208,7 +248,22 @@ function ApiKeysSection() {
 
         {/* API keys list */}
         {isLoading ? (
-          <p className="text-muted-foreground text-sm">Loading API keys...</p>
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="rounded-lg border p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-32" />
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-36" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : apiKeys && apiKeys.length > 0 ? (
           <div className="space-y-3">
             {apiKeys.map((key) => (
@@ -250,7 +305,7 @@ function ApiKeysSection() {
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleRevokeKey(key.id)}
+                    onClick={() => setKeyToRevoke({ id: key.id, name: key.name })}
                   >
                     Revoke
                   </Button>
@@ -259,10 +314,37 @@ function ApiKeysSection() {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground text-sm">
-            No API keys yet. Create one to get started.
-          </p>
+          <div className="flex flex-col items-center py-8 text-center">
+            <KeyRound className="h-12 w-12 text-muted-foreground/50 mb-3" />
+            <p className="text-muted-foreground text-sm">
+              No API keys yet. Create one to get started.
+            </p>
+          </div>
         )}
+
+        {/* Revoke confirmation dialog */}
+        <AlertDialog open={!!keyToRevoke} onOpenChange={(open) => !open && setKeyToRevoke(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to revoke the API key "{keyToRevoke?.name}"?
+                This action cannot be undone and any applications using this key will
+                immediately lose access.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isRevoking}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRevokeKey}
+                disabled={isRevoking}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isRevoking ? "Revoking..." : "Revoke Key"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );

@@ -14,7 +14,7 @@ const proofPoints: ProofPoint[] = [
     icon: <AlertTriangle className="h-8 w-8" />,
     stat: "20+",
     label: "CVE Bypass Chains",
-    detail: "Discovered in lodash, EJS, Angular, and other major packages",
+    detail: "Discovered across major utility, templating, and parsing packages",
   },
   {
     icon: <Skull className="h-8 w-8" />,
@@ -59,18 +59,27 @@ export default function ResearchProof() {
         ))}
       </div>
 
-      {/* Affected packages - verifiable */}
+      {/* Affected package categories */}
       <div className="mt-12 text-center">
         <p className="text-muted-foreground text-sm">
-          Vulnerabilities discovered in packages you probably use:
+          Vulnerabilities discovered across critical package categories:
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-          {["lodash", "ejs", "pug", "handlebars", "execa", "cross-spawn", "got", "axios"].map((pkg) => (
+          {[
+            "Object utilities",
+            "Template engines",
+            "YAML parsers",
+            "Process spawners",
+            "HTTP clients",
+            "Schema validators",
+            "Config loaders",
+            "CLI frameworks"
+          ].map((category) => (
             <span
-              key={pkg}
-              className="bg-muted text-muted-foreground rounded-full px-4 py-1.5 font-mono text-sm"
+              key={category}
+              className="bg-muted text-muted-foreground rounded-full px-4 py-1.5 text-sm"
             >
-              {pkg}
+              {category}
             </span>
           ))}
         </div>

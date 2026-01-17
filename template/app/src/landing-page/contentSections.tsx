@@ -76,7 +76,7 @@ export const faqs = [
   {
     id: 1,
     question: "How is depaxiom different from npm audit or Snyk?",
-    answer: "Traditional scanners evaluate packages atomically—they check if lodash has a CVE. Depaxiom analyzes combinations: when your lodash version plus your yaml parser plus your templating engine create an exploitable chain that no individual CVE covers.",
+    answer: "Traditional scanners evaluate packages atomically—they check if a utility library has a CVE. Depaxiom analyzes combinations: when your object utility plus your config parser plus your templating engine create an exploitable chain that no individual CVE covers.",
     href: "/docs/compositional-analysis",
   },
   {
@@ -98,7 +98,7 @@ export const faqs = [
   {
     id: 5,
     question: "How often is your vulnerability database updated?",
-    answer: "Our research engine continuously discovers new chains. The database updates daily with new findings, and critical discoveries are pushed immediately. You're not waiting for CVE assignments—we find issues before they're public.",
+    answer: "Our research engine continuously discovers new chains. The database updates daily with new findings, and critical discoveries are pushed immediately. You're not waiting for CVE assignments—we find issues before they're public. We also regularly test existing CVE patches for bypasses and frequently discover incomplete fixes that leave applications vulnerable.",
   },
   {
     id: 6,
