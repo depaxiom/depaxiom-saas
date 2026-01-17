@@ -26,6 +26,22 @@ model User {
   contactFormMessages       ContactFormMessage[]
   tasks                     Task[]
   files                     File[]
+  apiKeys                   ApiKey[]
+}
+
+model ApiKey {
+  id                        String          @id @default(uuid())
+  createdAt                 DateTime        @default(now())
+
+  user                      User            @relation(fields: [userId], references: [id])
+  userId                    String
+
+  name                      String          // User-friendly name for the key
+  keyHash                   String          @unique // SHA-256 hash of the actual key
+  keyPrefix                 String          // First 8 chars for identification (e.g., "dpx_abc1")
+  lastUsedAt                DateTime?
+  expiresAt                 DateTime?
+  isRevoked                 Boolean         @default(false)
 }
 
 model GptResponse {
